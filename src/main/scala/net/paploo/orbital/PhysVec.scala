@@ -19,6 +19,11 @@ object PhysVec {
     r * math.sin(th) * math.sin(phi),
     r * math.cos(th)
   )
+
+  implicit class VecDouble(a: Double) {
+    def *(v: PhysVec): PhysVec = v * a
+    def /(v: PhysVec): PhysVec = v / a
+  }
 }
 
 /**
@@ -44,8 +49,8 @@ case class PhysVec(x: Double = 0.0, y: Double = 0.0, z: Double = 0.0) {
   /** Produce a tuple in Spherical Coordinates, (r, phi, th) */
   lazy val toSpherical: (Double, Double, Double) = (r, phi, th)
 
-  def unary_- : PhysVec = PhysVec(-x, -y, -z)
-  def unary_+ : PhysVec = this
+  lazy val unary_- : PhysVec = PhysVec(-x, -y, -z)
+  lazy val unary_+ : PhysVec = this
   def +(v: PhysVec): PhysVec = PhysVec(x + v.x, y + v.y, z + v.z)
   def -(v: PhysVec): PhysVec = PhysVec(x - v.x, y - v.y, z - v.z)
   def *(a: Double): PhysVec = PhysVec(x * a, y * a)
@@ -56,4 +61,6 @@ case class PhysVec(x: Double = 0.0, y: Double = 0.0, z: Double = 0.0) {
     z * v.x - x * v.z,
     x * v.y - y * v.x
   )
+  lazy val sq: Double = this dot this
+  lazy val unit: PhysVec = this / this.r
 }

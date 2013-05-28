@@ -13,7 +13,8 @@ scalacOptions ++= Seq(
   "-target:jvm-1.6",
   "-encoding", "UTF-8",
   "-feature",
-  "-optimise"
+  "-optimise",
+  "-Yinline-warnings"
 )
 
 libraryDependencies ++= Seq(
