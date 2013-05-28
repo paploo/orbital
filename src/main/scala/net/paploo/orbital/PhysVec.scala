@@ -1,0 +1,59 @@
+package net.paploo.orbital
+
+object PhysVec {
+  val zero = PhysVec(0.0, 0.0, 0.0)
+
+  /** Build a new 2D vector from rectangular coordinates.*/
+  def RectVec(x: Double, y: Double): PhysVec = PhysVec(x, y, 0.0)
+
+  /** Build a new 3D vector from rectangular coordinates. */
+  def RectVec(x: Double, y: Double, z: Double): PhysVec = PhysVec(x, y, z)
+
+  /** Build a new 2D vector from polar coordinates. */
+  def PolarVec(r: Double, phi: Double): PhysVec =
+    PhysVec(r * math.cos(phi), r * math.sin(phi), 0.0)
+
+  /** Build a new 3D vector from spherical coordinates */
+  def SphericalVec(r: Double, phi: Double, th: Double) = PhysVec(
+    r * math.sin(th) * math.cos(phi),
+    r * math.sin(th) * math.sin(phi),
+    r * math.cos(th)
+  )
+}
+
+/**
+ * A class representing a 3D vector.
+ *
+ *  One normally instantiates using the helper RectVect, PolarVec and
+ *  SphericalVec methods.
+ */
+case class PhysVec(x: Double = 0.0, y: Double = 0.0, z: Double = 0.0) {
+
+  /** radius */
+  lazy val r: Double = math.sqrt(x * x + y * y + z * z)
+
+  /** x-y plane variable (theta in 2-D, but confusingly phi in 3-D in physics) */
+  lazy val phi: Double = math.atan2(y, z)
+
+  /** Angle down from the z-axis. */
+  lazy val th: Double = math.acos(z / r)
+
+  /** Produce a tuple in Rectangular Coordinates, (x,y,z) */
+  lazy val toRect: (Double, Double, Double) = (x, y, z)
+
+  /** Produce a tuple in Spherical Coordinates, (r, phi, th) */
+  lazy val toSpherical: (Double, Double, Double) = (r, phi, th)
+
+  def unary_- : PhysVec = PhysVec(-x, -y, -z)
+  def unary_+ : PhysVec = this
+  def +(v: PhysVec): PhysVec = PhysVec(x + v.x, y + v.y, z + v.z)
+  def -(v: PhysVec): PhysVec = PhysVec(x - v.x, y - v.y, z - v.z)
+  def *(a: Double): PhysVec = PhysVec(x * a, y * a)
+  def /(a: Double): PhysVec = PhysVec(x / a, y / a)
+  def dot(v: PhysVec): Double = x * v.x + y * v.y + z * v.z
+  def cross(v: PhysVec): PhysVec = PhysVec(
+    y * v.z - z * v.y,
+    z * v.x - x * v.z,
+    x * v.y - y * v.x
+  )
+}
