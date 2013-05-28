@@ -93,12 +93,8 @@ class StagedRocket(state: State, planetoid: Planetoid,
 
   lazy val massFlow: Double = currentStage.massFlow(atm, throttle)
 
-  override def step(deltaT: Double): Rocket = {
-    if (currentStage.isEmpty)
-      new StagedRocket(state, planetoid, throttle, attitude, stages.tail).step(deltaT)
-    else
-      new StagedRocket(steppedState(deltaT), planetoid, throttle, attitude, steppedStages(deltaT))
-  }
+  override def step(deltaT: Double): Rocket =
+    new StagedRocket(steppedState(deltaT), planetoid, throttle, attitude, steppedStages(deltaT))
 
   protected def steppedStages(deltaT: Double): List[Stage] = {
     val stagesList = if (currentStage.isEmpty && !stages.isEmpty) stages.tail else stages
