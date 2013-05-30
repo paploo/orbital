@@ -6,50 +6,10 @@ object Rocket {
   val ispSurfaceGravity = 9.8072
 }
 
-class Rocket(val state: State, val mass: Double, val planetoid: Planetoid) {
-  lazy val pos = state.pos
-  lazy val vel = state.vel
-
+class Rocket(val state: State, val mass: Double, val planetoid: Planetoid) extends OrbitalParameters {
   lazy val force: PhysVec = gravForce + dragForce
 
   lazy val acceleration: PhysVec = force / mass
-
-  lazy val specificMomentum = state.specificMomentum
-  lazy val specificAngularMoment = state.specificAngularMoment
-  lazy val specificKineticEnergy = state.specificKineticEnergy
-  lazy val specificPotentialEnergy = -planetoid.mu / pos.r
-  lazy val specificEnergy = specificKineticEnergy + specificPotentialEnergy
-
-  lazy val eccentricity: Double = {
-    val num = 2.0 * specificAngularMoment.sq * specificEnergy
-    val den = planetoid.mu * planetoid.mu
-    val radicand = 1.0 + num / den
-    // Sometimes rounding errors on near circular orbits make the radicand negative, so make zero when that happens.
-    if (radicand < 0.0) 0.0
-    else math.sqrt(radicand)
-  }
-
-  lazy val semimajorAxis =
-    if (specificEnergy == 0.0) Double.NaN
-    else -(planetoid.mu) / (2.0 * specificEnergy)
-
-  lazy val apses: (Double, Double) =
-    // When parabolic we hit a special case where the semimajor axis is undefined.
-    if (specificEnergy == 0.0) {
-      val periapsis = specificAngularMoment.sq / (2 * planetoid.mu)
-      val apoapsis = Double.PositiveInfinity
-      (periapsis, apoapsis)
-    } else {
-      val periapsis = semimajorAxis * (1.0 + eccentricity)
-      val apoapsis = semimajorAxis * (1.0 - eccentricity)
-      (periapsis, apoapsis)
-    }
-
-  lazy val period: Double =
-    if (specificEnergy < 0.0)
-      (math.Pi * planetoid.mu) / math.sqrt(-2.0 * specificEnergy * specificEnergy * specificEnergy)
-    else
-      Double.NaN
 
   def step(deltaT: Double): Rocket =
     new Rocket(steppedState(deltaT), mass, planetoid)
