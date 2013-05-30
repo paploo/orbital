@@ -20,6 +20,10 @@ object PhysVec {
     r * math.cos(th)
   )
 
+  /** Calculates the angle between the two vectors.  Is always in range [0,180] */
+  def vectorAngle(u: PhysVec, v: PhysVec) =
+    math.acos((u dot v) / (u.r * v.r))
+
   implicit class VecDouble(a: Double) {
     def *(v: PhysVec): PhysVec = v * a
     def /(v: PhysVec): PhysVec = v / a
