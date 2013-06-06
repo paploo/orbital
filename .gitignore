@@ -6,6 +6,7 @@ target
 .classpath
 .project
 .settings
+.worksheet
 
 # Vim
 *.swp

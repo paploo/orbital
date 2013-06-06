@@ -58,8 +58,8 @@ case class PhysVec(x: Double = 0.0, y: Double = 0.0, z: Double = 0.0) {
   lazy val unary_+ : PhysVec = this
   def +(v: PhysVec): PhysVec = PhysVec(x + v.x, y + v.y, z + v.z)
   def -(v: PhysVec): PhysVec = PhysVec(x - v.x, y - v.y, z - v.z)
-  def *(a: Double): PhysVec = PhysVec(x * a, y * a)
-  def /(a: Double): PhysVec = PhysVec(x / a, y / a)
+  def *(a: Double): PhysVec = PhysVec(x * a, y * a, z * a)
+  def /(a: Double): PhysVec = PhysVec(x / a, y / a, z / a)
   def dot(v: PhysVec): Double = x * v.x + y * v.y + z * v.z
   def cross(v: PhysVec): PhysVec = PhysVec(
     y * v.z - z * v.y,

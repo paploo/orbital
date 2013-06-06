@@ -15,7 +15,7 @@ class Rocket(val state: State, val mass: Double, val planetoid: Planetoid) exten
     new Rocket(steppedState(deltaT), mass, planetoid)
 
   lazy val gravForce: PhysVec =
-    -(planetoid.mu / (pos.sq)) * pos.unit
+    -((planetoid.mu * mass) / (pos.sq)) * pos.unit
 
   lazy val dragForce: PhysVec = PhysVec.zero // TODO: Implement against planetoid.
 
