@@ -24,6 +24,7 @@ object PhysVec {
   def vectorAngle(u: PhysVec, v: PhysVec) =
     math.acos((u dot v) / (u.r * v.r))
 
+  /** Implicit converter of Doubles to a PhysVec aware wrapper. */
   implicit class VecDouble(a: Double) {
     def *(v: PhysVec): PhysVec = v * a
     def /(v: PhysVec): PhysVec = v / a

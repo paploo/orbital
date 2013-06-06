@@ -6,18 +6,20 @@ object Rocket {
   val ispSurfaceGravity = 9.8072
 }
 
-class Rocket(val state: State, val mass: Double, val planetoid: Planetoid) extends OrbitalParameters {
+class Rocket(val state: State, val mass: Double, val planetoid: Planetoid) extends Steppable[Rocket] with OrbitalParameters {
   lazy val force: PhysVec = gravForce + dragForce
 
   lazy val acceleration: PhysVec = force / mass
 
-  def step(deltaT: Double): Rocket =
+  override def step(deltaT: Double): Rocket =
     new Rocket(steppedState(deltaT), mass, planetoid)
 
   lazy val gravForce: PhysVec =
     -(planetoid.mu / (pos.sq)) * pos.unit
 
   lazy val dragForce: PhysVec = PhysVec.zero // TODO: Implement against planetoid.
+
+  override def toString = s"Rocket($state, $mass, ${planetoid.name})"
 
   protected def steppedState(deltaT: Double): State = state.step(deltaT, acceleration)
 }

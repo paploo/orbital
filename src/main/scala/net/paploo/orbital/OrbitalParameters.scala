@@ -25,7 +25,6 @@ trait OrbitalParameters {
     if (specificEnergy == 0.0) Double.NaN
     else -(planetoid.mu) / (2.0 * specificEnergy)
 
-  //TODO: Apses doesn't always return the smallest number as the periapsis.
   lazy val apses: (Double, Double) =
     // When parabolic we hit a special case where the semimajor axis is undefined.
     if (specificEnergy == 0.0) {

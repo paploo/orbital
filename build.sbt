@@ -20,3 +20,7 @@ scalacOptions ++= Seq(
 libraryDependencies ++= Seq(
   "org.scalatest" % "scalatest_2.10" % "2.0.M5b" % "test"
 )
+
+initialCommands in console += "import net.paploo.orbital._;"
+
+initialCommands in console += "import net.paploo.orbital.PhysVec._;"
