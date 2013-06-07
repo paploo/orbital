@@ -3,9 +3,17 @@ package net.paploo.orbital
 import PhysVec.{ SphericalVec, VecDouble }
 
 object Rocket {
+  /** Rocket ISP is calculated using this value for the surface gravity. */
   val ispSurfaceGravity = 9.8072
 }
 
+/**
+ * The Rocket superclass.
+ *
+ * Rockets are steppables with orbital parameters.
+ *
+ * The basic Rocket is unpowered and is more like a rock than a rocket.
+ */
 class Rocket(val state: State, val mass: Double, val planetoid: Planetoid) extends Steppable[Rocket] with OrbitalParameters {
   lazy val force: PhysVec = gravForce + dragForce
 
@@ -43,9 +51,14 @@ abstract class PoweredRocket(state: State, mass: Double, planetoid: Planetoid,
   def massFlow: Double
 }
 
+/**
+ * StagedRockets are PoweredRockets with a list of Stages to burn through.
+ *
+ * The simplest powered rocket is merely a staged rocket with one stage.
+ */
 class StagedRocket(state: State, planetoid: Planetoid,
                    throttle: Double, attitude: PhysVec, val stages: List[Stage])
-  extends PoweredRocket(state, stages.foldLeft(0.0)(_ + _.mass), planetoid, throttle, attitude) {
+  extends PoweredRocket(state, stages.foldLeft(0.0)(_ + _.mass), planetoid, throttle, attitude) with Steppable[StagedRocket] {
 
   lazy val currentStage = stages.head
 
@@ -55,7 +68,7 @@ class StagedRocket(state: State, planetoid: Planetoid,
 
   lazy val massFlow: Double = currentStage.massFlow(atm, throttle)
 
-  override def step(deltaT: Double): Rocket =
+  override def step(deltaT: Double): StagedRocket =
     new StagedRocket(steppedState(deltaT), planetoid, throttle, attitude, steppedStages(deltaT))
 
   protected def steppedStages(deltaT: Double): List[Stage] = {
@@ -64,6 +77,9 @@ class StagedRocket(state: State, planetoid: Planetoid,
   }
 }
 
+/**
+ * Stage for staged rockets.
+ */
 case class Stage(
   mass: Double,
   emptyMass: Double,
