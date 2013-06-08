@@ -5,6 +5,15 @@ import PhysVec.{ SphericalVec, VecDouble }
 object Rocket {
   /** Rocket ISP is calculated using this value for the surface gravity. */
   val ispSurfaceGravity = 9.8072
+
+  /**
+   * While true drag is a weighted average, ships without parachutes deployed
+   *  are typically very nearly 0.2 as of 0.21.
+   */
+  val standardDragCoefficient = 0.2
+
+  /** As of 0.21, the cross-sectional area isn't calculated and instead set to 1. */
+  val crossSectionalArea = 1.0
 }
 
 /**
@@ -25,7 +34,10 @@ class Rocket(val state: State, val mass: Double, val planetoid: Planetoid) exten
   lazy val gravForce: PhysVec =
     -((planetoid.mu * mass) / (pos.sq)) * pos.unit
 
-  lazy val dragForce: PhysVec = PhysVec.zero // TODO: Implement against planetoid.
+  lazy val dragForce: PhysVec = {
+    val magnitude = 0.5 * planetoid.density(pos) * vel.sq * mass * Rocket.standardDragCoefficient * Rocket.crossSectionalArea
+    -magnitude * vel.unit
+  }
 
   override def toString = s"Rocket($state, $mass, ${planetoid.name})"
 
