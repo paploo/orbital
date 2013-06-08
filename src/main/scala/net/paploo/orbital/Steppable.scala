@@ -39,7 +39,7 @@ trait Steppable[+T <: Steppable[T]] {
    * it is true.
    */
   def runWhile(cond: T => Boolean)(deltaT: Double): T =
-    runAnalysisWhile((_, nextFrame) => cond(nextFrame))(deltaT)
+    runAnalysisWhile((_, nextFrame) => cond(nextFrame))(deltaT) //Speed trials say this is as fast as an explicit implementation.
 
   /**
    * Runs calling the analyzerHook at each step, giving both the current and next frame,
