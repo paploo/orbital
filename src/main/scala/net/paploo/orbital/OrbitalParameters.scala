@@ -2,10 +2,10 @@ package net.paploo.orbital
 
 trait OrbitalParameters {
   val state: State
-  val planetoid: Planetoid
 
   val pos: PhysVec = state.pos
   val vel: PhysVec = state.vel
+  val planetoid: Planetoid = state.planetoid
 
   lazy val specificMomentum: PhysVec = vel
   lazy val specificAngularMoment: PhysVec = pos cross vel

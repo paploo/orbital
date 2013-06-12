@@ -22,20 +22,22 @@ object Rocket {
  *  All rockets are considered immutable, so most values are declared as val
  *  or lazy val.
  *
- *  Rockets are steppables with orbital parameters.
+ *  Rockets are Steppables with Orbital Parameters. Be sure to check these out.
+ *
+ *  When subclassing, it is important to override the step method from Steppable,
+ *  as well as provide for state, mass, attitude, thrust, and mass flow.
  *
  */
 trait Rocket[+T <: Rocket[T]] extends Steppable[T] with OrbitalParameters {
   this: T =>
 
   val state: State
-  val planetoid: Planetoid
 
   val mass: Double
 
-  val attitude: PhysVec
-
   val massFlow: Double
+
+  val attitude: PhysVec
 
   val thrust: Double
 
@@ -53,12 +55,11 @@ trait Rocket[+T <: Rocket[T]] extends Steppable[T] with OrbitalParameters {
 
   lazy val thrustForce: PhysVec = SphericalVec(thrust, attitude.phi, attitude.th)
 
-  override def step(deltaT: Double): T
+  override def toString = s"${getClass.getSimpleName}($state)"
 }
 
 /** An concrete unpowered Rocket superclass. */
 class UnpoweredRocket(override val state: State,
-                      override val planetoid: Planetoid,
                       override val mass: Double)
   extends Rocket[UnpoweredRocket] {
 
@@ -72,9 +73,7 @@ class UnpoweredRocket(override val state: State,
   override val attitude = PhysVec.zero
 
   override def step(deltaT: Double): UnpoweredRocket =
-    new UnpoweredRocket(state.step(deltaT, acceleration), planetoid, mass)
-
-  override def toString = s"Rocket($state, $mass, ${planetoid.name})"
+    new UnpoweredRocket(state.step(deltaT, acceleration), mass)
 }
 
 /**
@@ -83,7 +82,6 @@ class UnpoweredRocket(override val state: State,
  * The simplest powered rocket is merely a staged rocket with one stage.
  */
 class StagedRocket(override val state: State,
-                   override val planetoid: Planetoid,
                    override val attitude: PhysVec,
                    val throttle: Double,
                    val stages: List[Stage])
@@ -103,7 +101,6 @@ class StagedRocket(override val state: State,
   override def step(deltaT: Double): StagedRocket =
     new StagedRocket(
       state.step(deltaT, acceleration),
-      planetoid,
       attitude,
       throttle,
       steppedStages(deltaT)
