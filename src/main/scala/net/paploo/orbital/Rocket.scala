@@ -17,19 +17,31 @@ object Rocket {
 }
 
 /**
- * The Rocket superclass.
+ * The Rocket trait.
  *
- * Rockets are steppables with orbital parameters.
+ *  All rockets are considered immutable, so most values are declared as val
+ *  or lazy val.
  *
- * The basic Rocket is unpowered and is more like a rock than a rocket.
+ *  Rockets are steppables with orbital parameters.
+ *
  */
-class Rocket(val state: State, val mass: Double, val planetoid: Planetoid) extends Steppable[Rocket] with OrbitalParameters {
-  lazy val force: PhysVec = gravForce + dragForce
+trait Rocket[+T <: Rocket[T]] extends Steppable[T] with OrbitalParameters {
+  this: T =>
+
+  val state: State
+  val planetoid: Planetoid
+
+  val mass: Double
+
+  val attitude: PhysVec
+
+  val massFlow: Double
+
+  val thrust: Double
+
+  lazy val force: PhysVec = gravForce + dragForce + thrustForce
 
   lazy val acceleration: PhysVec = force / mass
-
-  override def step(deltaT: Double): Rocket =
-    new Rocket(steppedState(deltaT), mass, planetoid)
 
   lazy val gravForce: PhysVec =
     -((planetoid.mu * mass) / (pos.sq)) * pos.unit
@@ -39,28 +51,30 @@ class Rocket(val state: State, val mass: Double, val planetoid: Planetoid) exten
     -magnitude * vel.unit
   }
 
-  override def toString = s"Rocket($state, $mass, ${planetoid.name})"
+  lazy val thrustForce: PhysVec = SphericalVec(thrust, attitude.phi, attitude.th)
 
-  protected def steppedState(deltaT: Double): State = state.step(deltaT, acceleration)
+  override def step(deltaT: Double): T
 }
 
-/**
- * Abstract superclass of powered rockets.
- *
- *  In additional to the base class properties, it also takes a throttle setting,
- *  between 0.0 and 1.0, and an attitude vector (relative to the inertial frame).
- */
-abstract class PoweredRocket(state: State, mass: Double, planetoid: Planetoid,
-                             val throttle: Double, val attitude: PhysVec)
-  extends Rocket(state, mass, planetoid) {
+/** An concrete unpowered Rocket superclass. */
+class UnpoweredRocket(override val state: State,
+                      override val planetoid: Planetoid,
+                      override val mass: Double)
+  extends Rocket[UnpoweredRocket] {
 
-  override lazy val force: PhysVec = gravForce + dragForce + thrustForce
+  /* Overriding this to remove the thrust component reduces computation time by 25% */
+  override lazy val force = gravForce + dragForce
 
-  def thrustForce: PhysVec = SphericalVec(thrust, attitude.phi, attitude.th)
+  override val thrust = 0.0
 
-  def thrust: Double
+  override val massFlow = 0.0
 
-  def massFlow: Double
+  override val attitude = PhysVec.zero
+
+  override def step(deltaT: Double): UnpoweredRocket =
+    new UnpoweredRocket(state.step(deltaT, acceleration), planetoid, mass)
+
+  override def toString = s"Rocket($state, $mass, ${planetoid.name})"
 }
 
 /**
@@ -68,9 +82,15 @@ abstract class PoweredRocket(state: State, mass: Double, planetoid: Planetoid,
  *
  * The simplest powered rocket is merely a staged rocket with one stage.
  */
-class StagedRocket(state: State, planetoid: Planetoid,
-                   throttle: Double, attitude: PhysVec, val stages: List[Stage])
-  extends PoweredRocket(state, stages.foldLeft(0.0)(_ + _.mass), planetoid, throttle, attitude) with Steppable[StagedRocket] {
+class StagedRocket(override val state: State,
+                   override val planetoid: Planetoid,
+                   override val attitude: PhysVec,
+                   val throttle: Double,
+                   val stages: List[Stage])
+  extends Rocket[StagedRocket]
+  with Steppable[StagedRocket] {
+
+  lazy val mass = stages.foldLeft(0.0)(_ + _.mass)
 
   lazy val currentStage = stages.head
 
@@ -81,7 +101,13 @@ class StagedRocket(state: State, planetoid: Planetoid,
   lazy val massFlow: Double = currentStage.massFlow(atm, throttle)
 
   override def step(deltaT: Double): StagedRocket =
-    new StagedRocket(steppedState(deltaT), planetoid, throttle, attitude, steppedStages(deltaT))
+    new StagedRocket(
+      state.step(deltaT, acceleration),
+      planetoid,
+      attitude,
+      throttle,
+      steppedStages(deltaT)
+    )
 
   protected def steppedStages(deltaT: Double): List[Stage] = {
     val stagesList = if (currentStage.isEmpty && !stages.isEmpty) stages.tail else stages

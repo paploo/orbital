@@ -10,7 +10,7 @@ trait Steppable[+T <: Steppable[T]] {
   this: T =>
 
   /** Type for the AnalyzerHook function. **/
-  type AnalyzerHook = (T, T) => Boolean
+  type StepHook = (T, T) => Boolean
 
   /** The base step method signature; this must be overridden */
   def step(deltaT: Double): T
@@ -39,12 +39,18 @@ trait Steppable[+T <: Steppable[T]] {
    * it is true.
    */
   def runWhile(cond: T => Boolean)(deltaT: Double): T =
-    runAnalysisWhile((_, nextFrame) => cond(nextFrame))(deltaT) //Speed trials say this is as fast as an explicit implementation.
+    runWhileHook((_, nextFrame) => cond(nextFrame))(deltaT) //Speed trials say this is as fast as an explicit implementation.
 
   /**
-   * Runs calling the analyzerHook at each step, giving both the current and next frame,
-   * and stopping when the analyzerHook returns false. Returns the last frame for
-   * which the analyzerHook returned true.
+   * Runs calling the hook at each step, giving both the current and next frame,
+   * and stopping when the hook returns false. Returns the last frame for
+   * which the hook returned true.
+   *
+   * While simple hook implementations give basic runWhile and runUntil
+   * functionality, the hook function given to runWithHook is meant to be able
+   * to do more complex tasks, such as detection of events.  For example,
+   * if the radial velocity between two consecutive frames switches signs, then
+   * an apsis was found.
    *
    * Implementation of runWhile can be achieved by passing
    * {{{
@@ -58,18 +64,18 @@ trait Steppable[+T <: Steppable[T]] {
    * (frame, _) => cond(frame)
    * }}}
    *
-   * The analyzerHook can be an instance method on an object. This allows
+   * The hook can be an instance method on an object. This allows
    * for simple things (e.g. writing to a log), or more complex
    * things (e.g. event detection and notification, or on a mutable object,
    * collection of statistics.
    */
-  def runAnalysisWhile(analyzerHook: AnalyzerHook)(deltaT: Double): T = {
-    var frame = this
-    var nextFrame = frame.step(deltaT)
-    while (analyzerHook(frame, nextFrame)) {
-      frame = nextFrame
-      nextFrame = frame.step(deltaT)
+  def runWhileHook(hook: StepHook)(deltaT: Double): T = {
+    var step = this
+    var nextStep = step.step(deltaT)
+    while (hook(step, nextStep)) {
+      step = nextStep
+      nextStep = step.step(deltaT)
     }
-    frame
+    step
   }
 }

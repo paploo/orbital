@@ -46,7 +46,7 @@ case class PhysVec(x: Double = 0.0, y: Double = 0.0, z: Double = 0.0) {
   lazy val phi: Double = math.atan2(y, z)
 
   /** Angle down from the z-axis. */
-  lazy val th: Double = math.acos(z / r)
+  lazy val th: Double = if (r == 0.0) 0.0 else math.acos(z / r)
 
   /** Produce a tuple in Rectangular Coordinates, (x,y,z) */
   lazy val toRect: (Double, Double, Double) = (x, y, z)
