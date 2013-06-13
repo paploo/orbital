@@ -1,17 +1,18 @@
-package net.paploo.orbital
+package net.paploo.orbital.rocket.blackbox.event
 
-import planetoid.Planetoid
+import net.paploo.orbital.rocket.Rocket
+import net.paploo.orbital.planetoid.Planetoid
 
 /** Abstract superclass of all rocket events. */
-abstract class RocketEvent[T <: Rocket[T]] {
-  def rocket: T
+abstract class Event[R <: Rocket[R]] {
+  def rocket: R
 }
 
 /** Event for when the rocket reaches an apoapsis */
-case class ApoapsisEvent[T <: Rocket[T]](rocket: T) extends RocketEvent[T]
+case class ApoapsisEvent[R <: Rocket[R]](rocket: R) extends Event[R]
 
 /** Event for when the rocket reaches a periapsis */
-case class PeriapsisEvent[T <: Rocket[T]](rocket: T) extends RocketEvent[T]
+case class PeriapsisEvent[R <: Rocket[R]](rocket: R) extends Event[R]
 
 /**
  * Event for when the rocket reaches an ascending node.
@@ -19,7 +20,7 @@ case class PeriapsisEvent[T <: Rocket[T]](rocket: T) extends RocketEvent[T]
  *  Note that the second parameter, while usually a Planetoid, may be another
  *  Rocket.
  */
-case class AscendingNodeEvent[A <: Rocket[A], B](rocket: A, referenceObject: B) extends RocketEvent[A]
+case class AscendingNodeEvent[R <: Rocket[R], B](rocket: R, referenceObject: B) extends Event[R]
 
 /**
  * Event for when the rocket reaches a descending node.
@@ -27,28 +28,28 @@ case class AscendingNodeEvent[A <: Rocket[A], B](rocket: A, referenceObject: B) 
  *  Note that the second parameter, while usually a Planetoid, may be another
  *  Rocket.
  */
-case class DescendingNodeEvent[A <: Rocket[A], B](rocket: A, referenceObject: B) extends RocketEvent[A]
+case class DescendingNodeEvent[R <: Rocket[R], B](rocket: R, referenceObject: B) extends Event[R]
 
 /** Event for when changing SOIs */
-case class SOIEvent[T <: Rocket[T]](rocket: T, fromPlanetoid: Planetoid, toPlanetoid: Planetoid) extends RocketEvent[T]
+case class SOIEvent[R <: Rocket[R]](rocket: R, fromPlanetoid: Planetoid, toPlanetoid: Planetoid) extends Event[R]
 
 /**
  * Event for when a given time is reached.
  *
  *  This is typically used as a response to a triggered event.
  */
-case class TimeEvent[T <: Rocket[T]](rocket: T, time: Double)
+case class RimeEvent[R <: Rocket[R]](rocket: R, time: Double) extends Event[R]
 
 /**
  * Event for when a given true anomaly is reached.
  *
  *  This is typically used as a response to a triggered event.
  */
-case class TrueAnomalyEvent[T <: Rocket[T]](rocket: T, trueAnomaly: Double)
+case class RrueAnomalyEvent[R <: Rocket[R]](rocket: R, trueAnomaly: Double) extends Event[R]
 
 /**
  * Event for when a given remaining total delta-v is reached
  *
  *  This is typically used as a response to a triggered event.
  */
-case class RemainingDeltaVEvent[T <: Rocket[T]](rocket: T, remainingDeltaV: Double)
+case class RemainingDeltaVEvent[R <: Rocket[R]](rocket: R, remainingDeltaV: Double) extends Event[R]
