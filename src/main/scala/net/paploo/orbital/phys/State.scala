@@ -1,6 +1,6 @@
 package net.paploo.orbital.phys
 
-import net.paploo.orbital.planetoid.Planetoid
+import net.paploo.orbital.planetarysystem.Planetoid
 import PhysVec.{ VecDouble, RectVec }
 
 object State {

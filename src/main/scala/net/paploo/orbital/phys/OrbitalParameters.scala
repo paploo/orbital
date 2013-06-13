@@ -1,6 +1,6 @@
 package net.paploo.orbital.phys
 
-import net.paploo.orbital.planetoid.Planetoid
+import net.paploo.orbital.planetarysystem.Planetoid
 
 trait OrbitalParameters {
   val state: State

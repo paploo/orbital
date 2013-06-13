@@ -1,7 +1,7 @@
 package net.paploo.orbital.rocket.blackbox.event
 
 import net.paploo.orbital.rocket.Rocket
-import net.paploo.orbital.planetoid.Planetoid
+import net.paploo.orbital.planetarysystem.Planetoid
 
 /** Abstract superclass of all rocket events. */
 abstract class Event[R <: Rocket[R]] {

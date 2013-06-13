@@ -1,4 +1,4 @@
-package net.paploo.orbital.planetoid
+package net.paploo.orbital.planetarysystem
 
 import net.paploo.orbital.phys.PhysVec
 
