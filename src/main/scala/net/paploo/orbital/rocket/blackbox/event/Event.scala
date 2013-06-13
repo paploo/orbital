@@ -38,14 +38,14 @@ case class SOIEvent[R <: Rocket[R]](rocket: R, fromPlanetoid: Planetoid, toPlane
  *
  *  This is typically used as a response to a triggered event.
  */
-case class RimeEvent[R <: Rocket[R]](rocket: R, time: Double) extends Event[R]
+case class TimeEvent[R <: Rocket[R]](rocket: R, time: Double) extends Event[R]
 
 /**
  * Event for when a given true anomaly is reached.
  *
  *  This is typically used as a response to a triggered event.
  */
-case class RrueAnomalyEvent[R <: Rocket[R]](rocket: R, trueAnomaly: Double) extends Event[R]
+case class TrueAnomalyEvent[R <: Rocket[R]](rocket: R, trueAnomaly: Double) extends Event[R]
 
 /**
  * Event for when a given remaining total delta-v is reached
