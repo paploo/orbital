@@ -4,9 +4,19 @@ import net.paploo.orbital.rocket.Rocket
 import net.paploo.orbital.planetarysystem.Planetoid
 
 /** Abstract superclass of all rocket events. */
-abstract class Event[R <: Rocket[R]] {
+abstract class Event[+R <: Rocket[R]] {
   def rocket: R
 }
+
+/**
+ * Event for when the simulation starts.
+ */
+case class SimulationStartEvent[R <: Rocket[R]](rocket: R) extends Event[R]
+
+/**
+ * Event for signaling the end of the simulation.
+ */
+case class SimulationEndEvent[R <: Rocket[R]](rocket: R) extends Event[R]
 
 /** Event for when the rocket reaches an apoapsis */
 case class ApoapsisEvent[R <: Rocket[R]](rocket: R) extends Event[R]

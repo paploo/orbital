@@ -3,6 +3,7 @@ package net.paploo.orbital.rocket
 import net.paploo.orbital.planetarysystem.Planetoid
 import net.paploo.orbital.phys.{ PhysVec, State, OrbitalParameters }
 import net.paploo.orbital.phys.PhysVec.{ SphericalVec, VecDouble }
+import blackbox.{ BlackBoxAnalyzer, BlackBox }
 
 import net.paploo.orbital.phys.Steppable
 
@@ -32,7 +33,7 @@ object Rocket {
  *  as well as provide for state, mass, attitude, thrust, and mass flow.
  *
  */
-trait Rocket[+T <: Rocket[T]] extends Steppable[T] with OrbitalParameters {
+trait Rocket[+T <: Rocket[T]] extends Steppable[T] with OrbitalParameters with BlackBoxAnalyzer[T] {
   this: T =>
 
   val state: State
@@ -64,8 +65,11 @@ trait Rocket[+T <: Rocket[T]] extends Steppable[T] with OrbitalParameters {
 
 /** An concrete unpowered Rocket superclass. */
 class UnpoweredRocket(override val state: State,
-                      override val mass: Double)
-  extends Rocket[UnpoweredRocket] {
+                      override val mass: Double,
+                      override val blackBox: BlackBox[UnpoweredRocket])
+  extends Rocket[UnpoweredRocket]
+  with Steppable[UnpoweredRocket]
+  with BlackBoxAnalyzer[UnpoweredRocket] {
 
   /* Overriding this to remove the thrust component reduces computation time by 25% */
   override lazy val force = gravForce + dragForce
@@ -78,6 +82,13 @@ class UnpoweredRocket(override val state: State,
 
   override def step(deltaT: Double): UnpoweredRocket =
     new UnpoweredRocket(state.step(deltaT, acceleration), mass)
+
+  type AnalyzerRocketType = UnpoweredRocket
+
+  override def analyzeStep(rocket: AnalyzerRocketType, nextRocket: AnalyzerRocketType): BlackBox[UnpoweredRocket] = {
+    rocket.thrust == 0.0
+    blackBox.step(Vector.empty)
+  }
 }
 
 /**
@@ -90,17 +101,20 @@ class StagedRocket(override val state: State,
                    val throttle: Double,
                    val stages: List[Stage])
   extends Rocket[StagedRocket]
-  with Steppable[StagedRocket] {
+  with Steppable[StagedRocket]
+  with BlackBoxAnalyzer[StagedRocket] {
 
-  lazy val mass = stages.foldLeft(0.0)(_ + _.mass)
+  override lazy val mass = stages.foldLeft(0.0)(_ + _.mass)
 
   lazy val currentStage = stages.head
 
   lazy val atm = planetoid.atm(pos)
 
-  lazy val thrust: Double = currentStage.thrust(atm, throttle)
+  override lazy val thrust: Double = currentStage.thrust(atm, throttle)
 
-  lazy val massFlow: Double = currentStage.massFlow(atm, throttle)
+  override lazy val massFlow: Double = currentStage.massFlow(atm, throttle)
+
+  override val blackBox = BlackBox.newBox(this)
 
   override def step(deltaT: Double): StagedRocket =
     new StagedRocket(
@@ -109,6 +123,13 @@ class StagedRocket(override val state: State,
       throttle,
       steppedStages(deltaT)
     )
+
+  type AnalyzerRocketType = StagedRocket
+
+  override def analyzeStep(rocket: AnalyzerRocketType, nextRocket: AnalyzerRocketType): BlackBox[StagedRocket] = {
+    rocket.currentStage
+    blackBox.step(Vector.empty)
+  }
 
   protected def steppedStages(deltaT: Double): List[Stage] = {
     val stagesList = if (currentStage.isEmpty && !stages.isEmpty) stages.tail else stages
