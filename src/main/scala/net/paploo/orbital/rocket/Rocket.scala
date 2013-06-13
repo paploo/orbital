@@ -60,6 +60,8 @@ trait Rocket[+T <: Rocket[T]] extends Steppable[T] with OrbitalParameters with B
 
   lazy val thrustForce: PhysVec = SphericalVec(thrust, attitude.phi, attitude.th)
 
+  def blackBox: BlackBox[T]
+
   override def toString = s"${getClass.getSimpleName}($state)"
 }
 
@@ -81,13 +83,13 @@ class UnpoweredRocket(override val state: State,
   override val attitude = PhysVec.zero
 
   override def step(deltaT: Double): UnpoweredRocket =
-    new UnpoweredRocket(state.step(deltaT, acceleration), mass)
+    new UnpoweredRocket(state.step(deltaT, acceleration), mass, blackBox)
 
-  type AnalyzerRocketType = UnpoweredRocket
+  override type AnalyzerRocketType <: UnpoweredRocket
 
   override def analyzeStep(rocket: AnalyzerRocketType, nextRocket: AnalyzerRocketType): BlackBox[UnpoweredRocket] = {
     rocket.thrust == 0.0
-    blackBox.step(Vector.empty)
+    blackBox
   }
 }
 
@@ -99,7 +101,8 @@ class UnpoweredRocket(override val state: State,
 class StagedRocket(override val state: State,
                    override val attitude: PhysVec,
                    val throttle: Double,
-                   val stages: List[Stage])
+                   val stages: List[Stage],
+                   override val blackBox: BlackBox[StagedRocket])
   extends Rocket[StagedRocket]
   with Steppable[StagedRocket]
   with BlackBoxAnalyzer[StagedRocket] {
@@ -114,21 +117,20 @@ class StagedRocket(override val state: State,
 
   override lazy val massFlow: Double = currentStage.massFlow(atm, throttle)
 
-  override val blackBox = BlackBox.newBox(this)
-
   override def step(deltaT: Double): StagedRocket =
     new StagedRocket(
       state.step(deltaT, acceleration),
       attitude,
       throttle,
-      steppedStages(deltaT)
+      steppedStages(deltaT),
+      blackBox
     )
 
-  type AnalyzerRocketType = StagedRocket
+  override type AnalyzerRocketType <: StagedRocket
 
   override def analyzeStep(rocket: AnalyzerRocketType, nextRocket: AnalyzerRocketType): BlackBox[StagedRocket] = {
     rocket.currentStage
-    blackBox.step(Vector.empty)
+    blackBox
   }
 
   protected def steppedStages(deltaT: Double): List[Stage] = {

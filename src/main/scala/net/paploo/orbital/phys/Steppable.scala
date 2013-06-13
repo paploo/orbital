@@ -2,7 +2,14 @@ package net.paploo.orbital.phys
 
 /**
  * Steppable introduces the basic functionality of stepping through the simulation
- * dependent on the time
+ * dependent on the time.
+ *
+ * TODO: Stepping should happen in two steps:
+ * 1. Call step to get intermediate step.
+ * 2. Pass current and next steps to an analysis function.
+ * 3. Return value from analysis function (it can replace/mutate or pass-through).
+ * Stepping should return an Option[Steppable] value, so that termination can
+ * be met when no value is produced.
  */
 trait Steppable[+T <: Steppable[T]] {
   this: T =>
