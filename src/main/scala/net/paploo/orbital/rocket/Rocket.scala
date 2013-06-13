@@ -4,7 +4,7 @@ import net.paploo.orbital.planetarysystem.Planetoid
 import net.paploo.orbital.phys.{ PhysVec, State, OrbitalParameters }
 import net.paploo.orbital.phys.PhysVec.{ SphericalVec, VecDouble }
 
-import net.paploo.orbital.Steppable
+import net.paploo.orbital.phys.Steppable
 
 object Rocket {
   /** Rocket ISP is calculated using this value for the surface gravity. */

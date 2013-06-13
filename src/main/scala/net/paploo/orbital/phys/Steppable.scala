@@ -1,6 +1,4 @@
-package net.paploo.orbital
-
-import scala.annotation.tailrec
+package net.paploo.orbital.phys
 
 /**
  * Steppable introduces the basic functionality of stepping through the simulation
