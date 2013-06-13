@@ -1,4 +1,4 @@
-package net.paploo.orbital
+package net.paploo.orbital.phys
 
 object PhysVec {
   val zero = PhysVec(0.0, 0.0, 0.0)

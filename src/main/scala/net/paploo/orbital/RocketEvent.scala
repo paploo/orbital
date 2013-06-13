@@ -1,5 +1,7 @@
 package net.paploo.orbital
 
+import planetoid.Planetoid
+
 /** Abstract superclass of all rocket events. */
 abstract class RocketEvent[T <: Rocket[T]] {
   def rocket: T

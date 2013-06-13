@@ -1,4 +1,6 @@
-package net.paploo.orbital
+package net.paploo.orbital.planetoid
+
+import net.paploo.orbital.phys.PhysVec
 
 object Planetoid {
   val kerbin = Planetoid("Kerbin", 3531600000000.0, 600000.0, 21600.0, 5000.0)

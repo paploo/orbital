@@ -1,6 +1,7 @@
 package net.paploo.orbital
 
-import PhysVec.{ SphericalVec, VecDouble }
+import phys.{ PhysVec, State, OrbitalParameters }
+import phys.PhysVec.{ SphericalVec, VecDouble }
 
 object Rocket {
   /** Rocket ISP is calculated using this value for the surface gravity. */
