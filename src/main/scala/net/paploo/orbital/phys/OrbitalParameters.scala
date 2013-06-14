@@ -5,6 +5,7 @@ import net.paploo.orbital.planetarysystem.Planetoid
 trait OrbitalParameters {
   val state: State
 
+  val t: Double = state.t
   val pos: PhysVec = state.pos
   val vel: PhysVec = state.vel
   val planetoid: Planetoid = state.planetoid
