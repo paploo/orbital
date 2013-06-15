@@ -2,7 +2,7 @@ name := "Orbital"
 
 version := "0.1.0"
 
-scalaVersion := "2.10.1"
+scalaVersion := "2.10.2"
 
 scalaHome := Some(file("/usr/local/scala"))
 
@@ -22,5 +22,3 @@ libraryDependencies ++= Seq(
 )
 
 initialCommands in console += "import net.paploo.orbital._;"
-
-initialCommands in console += "import net.paploo.orbital.PhysVec._;"

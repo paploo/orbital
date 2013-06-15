@@ -46,6 +46,11 @@ trait Rocket[+T <: Rocket[T]] extends Steppable[T] with OrbitalParameters {
 
   val thrust: Double
 
+  def isFuelStarved: Boolean
+
+  def isInStableOrbit: Boolean =
+    isFuelStarved && planetoid.isAboveAtmosphere(pos)
+
   lazy val force: PhysVec = gravForce + dragForce + thrustForce
 
   lazy val acceleration: PhysVec = force / mass
@@ -81,15 +86,19 @@ class UnpoweredRocket(override val state: State,
 
   override val attitude = PhysVec.zero
 
+  override val isFuelStarved = true
+
   override def physStep(deltaT: Double): Option[UnpoweredRocket] =
     Option(new UnpoweredRocket(state.step(deltaT, acceleration), mass, blackBox))
 
   override def analyzeSteps[U >: UnpoweredRocket <: Steppable[U]](steps: (U, U)): Option[U] = steps match {
     case (step: UnpoweredRocket, nextStep: UnpoweredRocket) => {
-      val eventLog = new RocketAnalyzer(step, nextStep).analyze
-      if (eventLog.isEmpty) Some(nextStep)
-      else if (eventLog exists (_.isTerminationEvent)) None
-      else Option(nextStep ++ eventLog)
+      if (step.blackBox.isNewlyTerminated) None
+      else {
+        val eventLog = new RocketAnalyzer(step, nextStep).analyze
+        if (eventLog.isEmpty) Some(nextStep)
+        else Option(nextStep ++ eventLog)
+      }
     }
     case _ => None
   }
@@ -122,6 +131,8 @@ class StagedRocket(override val state: State,
 
   override lazy val massFlow: Double = currentStage.massFlow(atm, throttle)
 
+  override lazy val isFuelStarved: Boolean = stages.forall(_.isEmpty)
+
   override def physStep(deltaT: Double): Option[StagedRocket] =
     Option(new StagedRocket(
       state.step(deltaT, acceleration),
@@ -133,10 +144,12 @@ class StagedRocket(override val state: State,
 
   override def analyzeSteps[U >: StagedRocket <: Steppable[U]](steps: (U, U)): Option[U] = steps match {
     case (step: StagedRocket, nextStep: StagedRocket) => {
-      val eventLog = new RocketAnalyzer(step, nextStep).analyze
-      if (eventLog.isEmpty) Option(nextStep)
-      else if (eventLog exists (_.isTerminationEvent)) None
-      else Option(nextStep ++ eventLog)
+      if (step.blackBox.isNewlyTerminated) None
+      else {
+        val eventLog = new RocketAnalyzer(step, nextStep).analyze
+        if (eventLog.isEmpty) Option(nextStep)
+        else Option(nextStep ++ eventLog)
+      }
     }
     case _ => None
   }

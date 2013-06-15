@@ -37,6 +37,22 @@ trait BlackBox[+T <: Rocket[T]] {
   /** Returns true if there are current events */
   def hasNewEvents: Boolean = !(currentEvents.isEmpty)
 
+  /**
+   *  Returns true if any of the new events are termination events.
+   *
+   *  This is more performant for checking for termination as it only
+   *  checks new events.
+   */
+  def isNewlyTerminated: Boolean = currentEvents.exists(_.isTerminationEvent)
+
+  /**
+   * Returns true if the events log contains a termination event.
+   *
+   * If you know the termination event must be newly created (is in the currentEvents)
+   * then it is more performant to check isNewlyTerminated.
+   */
+  def isTerminated: Boolean = events.exists(_.isTerminationEvent)
+
   /** Appends new events to the black box, making them the current events, and returning a copy */
   def ++[U >: T <: Rocket[U]](newEvents: EventLog[U]): BlackBox[U]
 
@@ -48,7 +64,11 @@ package immutable {
   /** An immutable implementation of the BlackBox trait */
   class BlackBox[+T <: Rocket[T]](override val events: EventLog[T], override val currentEvents: EventLog[T]) extends net.paploo.orbital.rocket.blackbox.BlackBox[T] {
 
-    override def hasNewEvents: Boolean = !(currentEvents.isEmpty)
+    override lazy val hasNewEvents: Boolean = super.hasNewEvents
+
+    override lazy val isNewlyTerminated: Boolean = super.isNewlyTerminated
+
+    override lazy val isTerminated: Boolean = super.isTerminated
 
     override def ++[U >: T <: Rocket[U]](newEvents: EventLog[U]): BlackBox[U] =
       new BlackBox[U](events ++ newEvents, newEvents)

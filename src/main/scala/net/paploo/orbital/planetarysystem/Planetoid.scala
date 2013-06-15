@@ -36,15 +36,44 @@ case class Planetoid(name: String, mu: Double, radius: Double, rotPeriod: Double
   @inline final def alt(pos: PhysVec): Double = alt(pos.r)
   @inline final def alt(r: Double): Double = r - radius
 
+  /** Returns true if the given position is at or below the planetoid surface. */
+  def isCollision(pos: PhysVec): Boolean = isCollision(pos.r)
+
+  /** Returns true if the given radius is at or below the planetoid surface. */
+  def isCollision(r: Double): Boolean = alt(r) <= 0.0
+
+  /** Returns true if the given position in in the atmosphere. */
+  def isInAtmosphere(pos: PhysVec): Boolean = isInAtmosphere(pos.r)
+
+  /** Returns true if the given radius in in the atmosphere. */
+  def isInAtmosphere(r: Double): Boolean = alt(r) <= atmMaxAlt && alt(r) > 0.0
+
+  /**
+   * Returns true if the position is free and clear of both the surface
+   *  and the atmosphere.
+   */
+  def isAboveAtmosphere(pos: PhysVec): Boolean = isAboveAtmosphere(pos.r)
+
+  /**
+   * Returns true if the radius is free and clear of both the surface
+   *  and the atmosphere.
+   *
+   *  This method is equivalent to
+   *  {{{
+   *   !isCollision(r) && !isInAtmosphere(r)
+   *  }}}
+   *  but is more performant.
+   */
+  def isAboveAtmosphere(r: Double): Boolean = alt(r) > atmMaxAlt
+
   /** Atmospheric pressure at a position vector relative to the planetoid. */
   @inline final def atm(pos: PhysVec): Double = atm(pos.r)
 
   /** Atmospheric pressure at a given radius. */
   def atm(r: Double): Double = {
-    val a = alt(r)
-    if (a > atmMaxAlt) 0.0
-    else if (a <= 0.0) 1.0
-    else math.exp(-a / atmAttenAlt)
+    if (isCollision(r)) 1.0
+    else if (isAboveAtmosphere(r)) 0.0
+    else math.exp(alt(r) / atmAttenAlt)
   }
 
   /** Atmospheric density at a position vector relative to the planetoid. */

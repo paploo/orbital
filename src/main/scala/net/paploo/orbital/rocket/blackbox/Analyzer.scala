@@ -27,6 +27,7 @@ class RocketAnalyzer[+T <: Rocket[T]](val step: T, val nextStep: T) extends Anal
     val log = new EventLogBuilder[T]
 
     log ++= orbitalEvents
+    log ++= controlEvents
 
     log.result
   }
@@ -43,8 +44,23 @@ class RocketAnalyzer[+T <: Rocket[T]](val step: T, val nextStep: T) extends Anal
     if (stepRadialVel < 0.0 && nextStepRadialVel >= 0.0)
       log += event.orbital.PeriapsisEvent(nextStep)
 
-    if (step.t < 1000.0 && nextStep.t >= 1000.0)
-      log += event.trigger.TimeEvent(nextStep, 1000.0)
+    if (step.pos.z < 0.0 && nextStep.pos.z >= 0.0)
+      log += event.orbital.AscendingNodeEvent(nextStep, nextStep.planetoid)
+
+    if (step.pos.z > 0.0 && nextStep.pos.z <= 0.0)
+      log += event.orbital.DescendingNodeEvent(nextStep, nextStep.planetoid)
+
+    log.result
+  }
+
+  protected def controlEvents: EventLog[T] = {
+    val log = new EventLogBuilder[T]
+
+    if (!step.planetoid.isCollision(nextStep.pos) && nextStep.planetoid.isCollision(nextStep.pos))
+      log += event.control.ImpactEvent(nextStep, nextStep.planetoid)
+
+    if (!step.isInStableOrbit && nextStep.isInStableOrbit)
+      log += event.control.StableOrbitEvent(nextStep)
 
     log.result
   }
@@ -59,6 +75,9 @@ class StagedRocketAnalyzer(override val step: StagedRocket, override val nextSte
 
     if (step.stages.length > nextStep.stages.length)
       log += event.rocket.StagingEvent(nextStep, step.currentStage, nextStep.stages)
+
+    if (!step.isFuelStarved && nextStep.isFuelStarved)
+      log += event.rocket.FuelStarvationEvent(nextStep)
 
     log ++= super.analyze
 

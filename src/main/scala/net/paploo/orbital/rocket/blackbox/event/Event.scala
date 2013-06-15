@@ -28,6 +28,8 @@ package control {
 
   case class EndOfProgramEvent[+R <: Rocket[R]](rocket: R) extends TerminationEvent[R]
 
+  case class StableOrbitEvent[+R <: Rocket[R]](rocket: R) extends TerminationEvent[R]
+
 }
 
 package rocket {
@@ -49,6 +51,8 @@ package orbital {
   case class PeriapsisEvent[+R <: Rocket[R]](rocket: R) extends OrbitalEvent[R]
 
   case class AscendingNodeEvent[+R <: Rocket[R], B](rocket: R, referenceObject: B) extends OrbitalEvent[R]
+
+  case class DescendingNodeEvent[+R <: Rocket[R], B](rocket: R, referenceObject: B) extends OrbitalEvent[R]
 
   case class SOIEvent[+R <: Rocket[R]](rocket: R, fromPlanetoid: Planetoid, toPlanetoid: Planetoid) extends OrbitalEvent[R]
 
