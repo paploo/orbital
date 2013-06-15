@@ -3,8 +3,8 @@ package net.paploo.orbital.rocket
 import net.paploo.orbital.planetarysystem.Planetoid
 import net.paploo.orbital.phys.{ PhysVec, State, OrbitalParameters }
 import net.paploo.orbital.phys.PhysVec.{ SphericalVec, VecDouble }
-import blackbox.immutable.BlackBox
-
+import blackbox.BlackBox
+import blackbox.{ RocketAnalyzer, StagedRocketAnalyzer }
 import net.paploo.orbital.phys.Steppable
 
 object Rocket {
@@ -84,6 +84,19 @@ class UnpoweredRocket(override val state: State,
   override def physStep(deltaT: Double): Option[UnpoweredRocket] =
     Option(new UnpoweredRocket(state.step(deltaT, acceleration), mass, blackBox))
 
+  override def analyzeSteps[U >: UnpoweredRocket <: Steppable[U]](steps: (U, U)): Option[U] = steps match {
+    case (step: UnpoweredRocket, nextStep: UnpoweredRocket) => {
+      val eventLog = new RocketAnalyzer(step, nextStep).analyze
+      if (eventLog.isEmpty) Some(nextStep)
+      else if (eventLog exists (_.isTerminationEvent)) None
+      else Option(nextStep ++ eventLog)
+    }
+    case _ => None
+  }
+
+  def ++(eventLog: BlackBox.EventLog[UnpoweredRocket]): UnpoweredRocket =
+    new UnpoweredRocket(state, mass, blackBox ++ eventLog)
+
 }
 
 /**
@@ -117,6 +130,25 @@ class StagedRocket(override val state: State,
       steppedStages(deltaT),
       blackBox
     ))
+
+  override def analyzeSteps[U >: StagedRocket <: Steppable[U]](steps: (U, U)): Option[U] = steps match {
+    case (step: StagedRocket, nextStep: StagedRocket) => {
+      val eventLog = new RocketAnalyzer(step, nextStep).analyze
+      if (eventLog.isEmpty) Option(nextStep)
+      else if (eventLog exists (_.isTerminationEvent)) None
+      else Option(nextStep ++ eventLog)
+    }
+    case _ => None
+  }
+
+  def ++(eventLog: BlackBox.EventLog[StagedRocket]): StagedRocket =
+    new StagedRocket(
+      state,
+      attitude,
+      throttle,
+      stages,
+      blackBox ++ eventLog
+    )
 
   protected def steppedStages(deltaT: Double): List[Stage] = {
     val stagesList = if (currentStage.isEmpty && !stages.isEmpty) stages.tail else stages

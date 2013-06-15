@@ -1,65 +1,67 @@
 package net.paploo.orbital.rocket.blackbox.event
 
-import net.paploo.orbital.rocket.Rocket
+import net.paploo.orbital.rocket.{ Rocket, Stage }
 import net.paploo.orbital.planetarysystem.Planetoid
 
 /** Abstract superclass of all rocket events. */
 abstract class Event[+R <: Rocket[R]] {
   def rocket: R
+  def isControlEvent: Boolean = false
+  def isTerminationEvent: Boolean = false
 }
 
-/**
- * Event for when the simulation starts.
- */
-case class SimulationStartEvent[R <: Rocket[R]](rocket: R) extends Event[R]
+package control {
 
-/**
- * Event for signaling the end of the simulation.
- */
-case class SimulationEndEvent[R <: Rocket[R]](rocket: R) extends Event[R]
+  trait ControlEvent[+R <: Rocket[R]] extends Event[R] {
+    override def isControlEvent: Boolean = true
+  }
 
-/** Event for when the rocket reaches an apoapsis */
-case class ApoapsisEvent[R <: Rocket[R]](rocket: R) extends Event[R]
+  trait InitiationEvent[+R <: Rocket[R]] extends ControlEvent[R]
 
-/** Event for when the rocket reaches a periapsis */
-case class PeriapsisEvent[R <: Rocket[R]](rocket: R) extends Event[R]
+  trait TerminationEvent[+R <: Rocket[R]] extends ControlEvent[R] {
+    override def isTerminationEvent: Boolean = true
+  }
 
-/**
- * Event for when the rocket reaches an ascending node.
- *
- *  Note that the second parameter, while usually a Planetoid, may be another
- *  Rocket.
- */
-case class AscendingNodeEvent[R <: Rocket[R], B](rocket: R, referenceObject: B) extends Event[R]
+  case class StartOfSimulationEvent[+R <: Rocket[R]](rocket: R) extends InitiationEvent[R]
 
-/**
- * Event for when the rocket reaches a descending node.
- *
- *  Note that the second parameter, while usually a Planetoid, may be another
- *  Rocket.
- */
-case class DescendingNodeEvent[R <: Rocket[R], B](rocket: R, referenceObject: B) extends Event[R]
+  case class ImpactEvent[+R <: Rocket[R], B](rocket: R, target: B) extends TerminationEvent[R]
 
-/** Event for when changing SOIs */
-case class SOIEvent[R <: Rocket[R]](rocket: R, fromPlanetoid: Planetoid, toPlanetoid: Planetoid) extends Event[R]
+  case class EndOfProgramEvent[+R <: Rocket[R]](rocket: R) extends TerminationEvent[R]
 
-/**
- * Event for when a given time is reached.
- *
- *  This is typically used as a response to a triggered event.
- */
-case class TimeEvent[R <: Rocket[R]](rocket: R, time: Double) extends Event[R]
+}
 
-/**
- * Event for when a given true anomaly is reached.
- *
- *  This is typically used as a response to a triggered event.
- */
-case class TrueAnomalyEvent[R <: Rocket[R]](rocket: R, trueAnomaly: Double) extends Event[R]
+package rocket {
 
-/**
- * Event for when a given remaining total delta-v is reached
- *
- *  This is typically used as a response to a triggered event.
- */
-case class RemainingDeltaVEvent[R <: Rocket[R]](rocket: R, remainingDeltaV: Double) extends Event[R]
+  trait RocketEvent[+R <: Rocket[R]] extends Event[R]
+
+  case class FuelStarvationEvent[+R <: Rocket[R]](rocket: R) extends RocketEvent[R]
+
+  case class StagingEvent[+R <: Rocket[R]](rocket: R, ejectedStage: Stage, remainingStages: List[Stage]) extends RocketEvent[R]
+
+}
+
+package orbital {
+
+  trait OrbitalEvent[+R <: Rocket[R]] extends Event[R]
+
+  case class ApoapsisEvent[+R <: Rocket[R]](rocket: R) extends OrbitalEvent[R]
+
+  case class PeriapsisEvent[+R <: Rocket[R]](rocket: R) extends OrbitalEvent[R]
+
+  case class AscendingNodeEvent[+R <: Rocket[R], B](rocket: R, referenceObject: B) extends OrbitalEvent[R]
+
+  case class SOIEvent[+R <: Rocket[R]](rocket: R, fromPlanetoid: Planetoid, toPlanetoid: Planetoid) extends OrbitalEvent[R]
+
+}
+
+package trigger {
+
+  trait TriggerEvent[+R <: Rocket[R]] extends Event[R]
+
+  case class TimeEvent[+R <: Rocket[R]](rocket: R, time: Double) extends TriggerEvent[R]
+
+  case class TruAnomalyEvent[+R <: Rocket[R]](rocket: R, trueAnomaly: Double) extends TriggerEvent[R]
+
+  case class RemainingDeltaVEvent[+R <: Rocket[R]](rocket: R, remainingDeltaV: Double) extends TriggerEvent[R]
+
+}
