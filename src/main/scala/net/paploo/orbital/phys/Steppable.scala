@@ -31,7 +31,7 @@ trait Steppable[+T <: Steppable[T]] {
   def step(deltaT: Double): Option[T] = {
     physStep(deltaT) match {
       case None => None
-      case Some(nextStep) => analyzeStep((this, nextStep))
+      case Some(nextStep) => analyzeSteps((this, nextStep))
     }
   }
 
@@ -56,7 +56,7 @@ trait Steppable[+T <: Steppable[T]] {
    *  Given the variance of this method, it is usually necessary to match on
    *  the type T to work with its parameters directly.
    */
-  def analyzeStep[U >: T <: Steppable[U]](steps: (U, U)): Option[U] = Some(steps._2)
+  def analyzeSteps[U >: T <: Steppable[U]](steps: (U, U)): Option[U] = Some(steps._2)
 
   /**
    * Gives a stream of steps.

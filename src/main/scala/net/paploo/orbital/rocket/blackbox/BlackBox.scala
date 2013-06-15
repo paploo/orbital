@@ -1,5 +1,6 @@
 package net.paploo.orbital.rocket.blackbox
 
+import scala.collection.immutable.VectorBuilder
 import net.paploo.orbital.rocket.Rocket
 import event.Event
 import BlackBox.EventLog
@@ -9,12 +10,17 @@ object BlackBox {
   /** The type alias for event lists on the BlackBox. */
   type EventLog[+T <: Rocket[T]] = Vector[Event[T]]
 
+  /** Type for a mutable type for building EventLogs efficiently. */
+  type EventLogBuilder[T <: Rocket[T]] = VectorBuilder[Event[T]]
+
+  def empty[T <: Rocket[T]] = new immutable.BlackBox[T](Vector.empty, Vector.empty)
+
   /**
    * Returns a new immutable black box with a start event already placed on it.
    *
    *  This is a common operation when creating a new rocket.
    */
-  def newBox[T <: Rocket[T]](rocket: T) = new immutable.BlackBox[T](Vector.empty, Vector(event.SimulationStartEvent(rocket)))
+  def newBox[T <: Rocket[T]](rocket: T) = new immutable.BlackBox[T](Vector.empty, Vector(event.control.StartOfSimulationEvent(rocket)))
 }
 
 /**
@@ -33,6 +39,8 @@ trait BlackBox[+T <: Rocket[T]] {
 
   /** Appends new events to the black box, making them the current events, and returning a copy */
   def ++[U >: T <: Rocket[U]](newEvents: EventLog[U]): BlackBox[U]
+
+  override def toString = s"${getClass.getSimpleName}($events)"
 }
 
 package immutable {
