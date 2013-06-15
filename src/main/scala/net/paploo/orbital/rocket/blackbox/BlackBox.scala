@@ -40,7 +40,7 @@ trait BlackBox[+T <: Rocket[T]] {
   /** Appends new events to the black box, making them the current events, and returning a copy */
   def ++[U >: T <: Rocket[U]](newEvents: EventLog[U]): BlackBox[U]
 
-  override def toString = s"${getClass.getSimpleName}($events)"
+  override def toString = s"${getClass.getSimpleName}(${events.length} events:\n${events.mkString("\n")})"
 }
 
 package immutable {

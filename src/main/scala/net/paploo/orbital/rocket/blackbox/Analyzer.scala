@@ -34,11 +34,17 @@ class RocketAnalyzer[+T <: Rocket[T]](val step: T, val nextStep: T) extends Anal
   protected def orbitalEvents: EventLog[T] = {
     val log = new EventLogBuilder[T]
 
-    if (step.vel.r > 0.0 && nextStep.vel.r <= 0.0)
+    val stepRadialVel = step.vel dot step.pos.unit
+    val nextStepRadialVel = nextStep.vel dot nextStep.pos.unit
+
+    if (stepRadialVel > 0.0 && nextStepRadialVel <= 0.0)
       log += event.orbital.ApoapsisEvent(nextStep)
 
-    if (step.vel.r < 0.0 && nextStep.vel.r >= 0.0)
+    if (stepRadialVel < 0.0 && nextStepRadialVel >= 0.0)
       log += event.orbital.PeriapsisEvent(nextStep)
+
+    if (step.t < 1000.0 && nextStep.t >= 1000.0)
+      log += event.trigger.TimeEvent(nextStep, 1000.0)
 
     log.result
   }
