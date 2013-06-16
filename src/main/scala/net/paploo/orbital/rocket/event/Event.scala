@@ -1,4 +1,4 @@
-package net.paploo.orbital.rocket.blackbox.event
+package net.paploo.orbital.rocket.event
 
 import net.paploo.orbital.rocket.{ Rocket, Stage }
 import net.paploo.orbital.planetarysystem.Planetoid

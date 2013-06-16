@@ -1,6 +1,7 @@
 package net.paploo.orbital.rocket.blackbox
 
 import net.paploo.orbital.rocket.{ Rocket, UnpoweredRocket, StagedRocket }
+import net.paploo.orbital.rocket.event
 import BlackBox.{ EventLog, EventLogBuilder }
 
 trait Analyzer[+T <: Rocket[T]] {
