@@ -19,7 +19,7 @@ object SampleLibrary {
     val initialRocket = new UnpoweredRocket(initialState, 10.0, BlackBox.empty)
     val rocket = initialRocket ++ BlackBox.EventLog(event.control.StartOfSimulationEvent(initialRocket))
 
-    rocket.runWhile(_.t <= rocket.period)(0.0001)
+    rocket.runWhile(_.t <= rocket.period * 1.1)(0.0001)
   }
 
 }
