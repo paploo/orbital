@@ -46,7 +46,7 @@ object App {
     rawName.split('.').head
   }
 
-  lazy val rocketRunFunctions = Map("SampleRun" -> sampleRun _)
+  lazy val rocketRunFunctions = Map("Basic Orbit" -> SampleLibrary.basicOrbit _)
 
   lazy val rocketLibFilePath: String = s"libout/${getHostName}.txt"
 
@@ -75,12 +75,5 @@ object App {
   }
 
   val hr = "* " * 35 + "*"
-
-  def sampleRun = {
-    val initialState = State(0.0, PhysVec(700000.0, 0.0), PhysVec(0.0, 2300.0), Planetoid.kerbin)
-    val initialRocket = new UnpoweredRocket(initialState, 10.0, BlackBox.empty)
-    val rocket = initialRocket ++ BlackBox.EventLog(event.control.StartOfSimulationEvent(initialRocket))
-    rocket.runWhile(_.t <= rocket.period)(1.0)
-  }
 
 }
