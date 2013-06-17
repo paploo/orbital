@@ -6,18 +6,18 @@ import net.paploo.orbital.rocket.event.Event
 import net.paploo.orbital.rocket.event
 import BlackBox.EventLog
 
+object EventLog {
+  /** Returns an empty event log. */
+  def empty[T <: Rocket[T]]: EventLog[T] = Vector.empty[Event[T]]
+
+  /** Creates an event log with the given events. */
+  def apply[T <: Rocket[T]](events: Event[T]*): EventLog[T] = events.toVector
+}
+
 object BlackBox {
 
   /** The type alias for event lists on the BlackBox. */
   type EventLog[+T <: Rocket[T]] = Vector[Event[T]]
-
-  object EventLog {
-    /** Returns an empty event log. */
-    def empty[T <: Rocket[T]]: EventLog[T] = Vector.empty[Event[T]]
-
-    /** Creates an event log with the given events. */
-    def apply[T <: Rocket[T]](events: Event[T]*): EventLog[T] = events.toVector
-  }
 
   /** Type for a mutable type for building EventLogs efficiently. */
   type EventLogBuilder[T <: Rocket[T]] = VectorBuilder[Event[T]]
