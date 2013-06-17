@@ -1,0 +1,16 @@
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+Basic Orbit:
+Time: 8343 milliseconds
+
+UnpoweredRocket(State(2320.8305001094045,PhysVec(546403.7365716592,449373.7574294038,0.0),PhysVec(-1393.3286837001492,1800.6398433873755,0.0),Planetoid(Kerbin,3.5316E12,600000.0,21600.0,5000.0)))
+
+apeses: (700001.2813055668,771414.2531197803)
+period: 2109.8526514413807
+trueAnomaly: 1.5410906308898162
+radialdistance: 707455.8765079924
+
+BlackBox(3 events:
+StartOfSimulationEvent(UnpoweredRocket(State(0.0,PhysVec(700000.0,0.0,0.0),PhysVec(0.0,2300.0,0.0),Planetoid(Kerbin,3.5316E12,600000.0,21600.0,5000.0))))
+ApoapsisEvent(UnpoweredRocket(State(1054.9279998068275,PhysVec(-771413.1678336244,-9.706352838163031,0.0),PhysVec(0.026287700627993654,-2087.0796904554477,0.0),Planetoid(Kerbin,3.5316E12,600000.0,21600.0,5000.0))))
+PeriapsisEvent(UnpoweredRocket(State(2109.848999682649,PhysVec(700001.2687783095,0.1704791349269448,0.0),PhysVec(-5.342195064892821E-4,2299.997990552821,0.0),Planetoid(Kerbin,3.5316E12,600000.0,21600.0,5000.0)))))
+
