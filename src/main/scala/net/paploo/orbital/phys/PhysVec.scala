@@ -67,5 +67,7 @@ case class PhysVec(x: Double = 0.0, y: Double = 0.0, z: Double = 0.0) {
     x * v.y - y * v.x
   )
   lazy val sq: Double = this dot this
-  lazy val unit: PhysVec = this / this.r
+  lazy val unit: PhysVec =
+    if (this.r != 0.0) this / this.r
+    else PhysVec.zero
 }

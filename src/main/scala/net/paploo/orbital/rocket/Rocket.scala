@@ -51,6 +51,8 @@ trait Rocket[+T <: Rocket[T]] extends Steppable[T] with OrbitalParameters {
   def isInStableOrbit: Boolean =
     isFuelStarved && planetoid.isAboveAtmosphere(pos)
 
+  def deltaV: Double
+
   lazy val force: PhysVec = gravForce + dragForce + thrustForce
 
   lazy val acceleration: PhysVec = force / mass
@@ -88,6 +90,8 @@ class UnpoweredRocket(override val state: State,
 
   override val isFuelStarved = true
 
+  override val deltaV = 0.0
+
   override def physStep(deltaT: Double): Option[UnpoweredRocket] =
     Option(new UnpoweredRocket(state.step(deltaT, acceleration), mass, blackBox))
 
@@ -121,7 +125,7 @@ class StagedRocket(override val state: State,
   extends Rocket[StagedRocket]
   with Steppable[StagedRocket] {
 
-  override lazy val mass = stages.foldLeft(0.0)(_ + _.mass)
+  override lazy val mass = Stage.mass(stages)
 
   lazy val currentStage = stages.head
 
@@ -132,6 +136,8 @@ class StagedRocket(override val state: State,
   override lazy val massFlow: Double = currentStage.massFlow(atm, throttle)
 
   override lazy val isFuelStarved: Boolean = stages.forall(_.isEmpty)
+
+  override lazy val deltaV = Stage.deltaV(stages)
 
   override def physStep(deltaT: Double): Option[StagedRocket] =
     Option(new StagedRocket(
@@ -163,8 +169,10 @@ class StagedRocket(override val state: State,
       blackBox ++ eventLog
     )
 
-  protected def steppedStages(deltaT: Double): List[Stage] = {
-    val stagesList = if (currentStage.isEmpty && !stages.isEmpty) stages.tail else stages
-    stagesList.head.step(deltaT, atm, throttle) :: stagesList.tail
-  }
+  protected def steppedStages(deltaT: Double): List[Stage] =
+    if (stages.isEmpty) Nil
+    else {
+      val nextStages = if (currentStage.isEmpty && stages.length > 1) stages.tail else stages
+      nextStages.head.step(deltaT, atm, throttle) :: nextStages.tail
+    }
 }
