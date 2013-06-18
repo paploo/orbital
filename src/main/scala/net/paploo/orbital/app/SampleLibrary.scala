@@ -16,7 +16,7 @@ object SampleLibrary {
   def basicOrbit: UnpoweredRocket = {
     val orbitRadius = 700000.0
     val circularOrbitSpeed = math.sqrt(Planetoid.kerbin.mu / orbitRadius)
-    val initialState = State(0.0, PhysVec(orbitRadius, 0.0), PhysVec(0.0, circularOrbitSpeed), Planetoid.kerbin)
+    val initialState = State(0.0, PhysVec(orbitRadius, 0.0), PhysVec(0.0, 2300.0), Planetoid.kerbin)
 
     val initialRocket = new UnpoweredRocket(initialState, 10.0, BlackBox.empty)
     val rocket = initialRocket ++ BlackBox.EventLog(event.control.StartOfSimulationEvent(initialRocket))
