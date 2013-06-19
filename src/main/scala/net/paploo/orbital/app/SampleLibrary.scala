@@ -24,6 +24,21 @@ object SampleLibrary {
     rocket.runWhile(_.t <= rocket.period * 1.1)(0.0001)
   }
 
+  def stagedVerticalClimb: StagedRocket = {
+    val stages = SampleLibrary.Gemini1Stages(false)
+    val initialState = State(
+      0.0,
+      PhysVec(Planetoid.kerbin.radius + 77.594, 0.0),
+      PhysVec.zero,
+      Planetoid.kerbin
+    )
+
+    val initialRocket = new StagedRocket(initialState, PhysVec(1.0, 0.0), 1.0, stages, BlackBox.empty)
+    val rocket = initialRocket ++ BlackBox.EventLog(event.control.StartOfSimulationEvent(initialRocket))
+
+    rocket.runWhile(_.t < 600.0)(1.0)
+  }
+
   /**
    * Returns a simple 3-stage rocket that can achieve orbit.
    *

@@ -46,7 +46,7 @@ object App {
     rawName.split('.').head
   }
 
-  lazy val rocketRunFunctions = Map("Basic Orbit" -> SampleLibrary.basicOrbit _)
+  lazy val rocketRunFunctions = Map("Staged Vertical Climb" -> SampleLibrary.stagedVerticalClimb _) //Map("Basic Orbit" -> SampleLibrary.basicOrbit _)
 
   lazy val rocketLibFilePath: String = s"libout/${getHostName}.txt"
 
