@@ -57,11 +57,14 @@ object App {
 
   lazy val rocketLibFilePath: String = s"libout/${getHostName}.txt"
 
-  lazy val rocketLibFile: File = new File(rocketLibFilePath)
+  lazy val rocketLibFile: File = {
+    val file = new File(rocketLibFilePath)
+    if (file.exists) file.delete
+    file.createNewFile
+    file
+  }
 
   def logRocket[R <: Rocket[R]](label: String, rocket: Rocket[R], duration: Duration)(file: File) = {
-    if (!file.exists) file.createNewFile
-
     val writer = new PrintWriter(new FileOutputStream(file, true))
 
     writer.println(hr)
