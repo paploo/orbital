@@ -8,7 +8,7 @@ learning.
 
 Phases:
 [x] Phase 1: Get simulation of a single-stage rocket around Kerbin.
-[ ] Phase 2: Get simulation of a multi-stage rocekt around Kerbin.
+[x] Phase 2: Get simulation of a multi-stage rocekt around Kerbin.
 [ ] Phase 3: Add flight programs (burns at a given time/position trigger, for a duration and direction)
 [ ] Phase 4: Add change of reference frame when transitioning between SOIs.
 [ ] Phase 5: Add CLI for input and output.

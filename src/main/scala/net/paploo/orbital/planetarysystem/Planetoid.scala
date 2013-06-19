@@ -9,8 +9,6 @@ object Planetoid {
   val dragMultiplier = 0.008
 }
 
-//TODO: Need method to get the relative velocity of the air (since it rotates with the body!)
-
 /**
  * A Planetoid.
  *
@@ -23,7 +21,16 @@ object Planetoid {
  * be in planetoid.
  */
 case class Planetoid(name: String, mu: Double, radius: Double, rotPeriod: Double, seaLevelPressure: Double, atmAttenAlt: Double) {
-  lazy val angularVelocity = 2.0 * math.Pi / rotPeriod
+
+  /**
+   * The scalar angular velocity around the rotation axis.
+   *
+   *  Can be negative if rotating in the opposite direction.
+   */
+  lazy val angularSpeed = 2.0 * math.Pi / rotPeriod
+
+  /** Angular velocity vector */
+  lazy val angularVelocity = PhysVec(0.0, 0.0, angularSpeed)
 
   /**
    * As of 0.21, the max altitude of the atmosphere is the atmospheric attenuation
@@ -92,9 +99,15 @@ case class Planetoid(name: String, mu: Double, radius: Double, rotPeriod: Double
     Planetoid.kerbinSurfaceDensity * Planetoid.dragMultiplier * atm(r)
 
   /**
+   * Returns the linear velocity of a rigidly attached body to the atmosphere
+   * at the given position (e.g. the surface or the atmosphere).
+   */
+  def linearVelocity(pos: PhysVec): PhysVec = angularVelocity cross pos
+
+  /**
    * The surface speed at the given latitude.  This vector is perpendicular
    * to both the rotation axis and your radius vector.
    */
   def surfaceSpeed(latitude: Double = 0.0) =
-    angularVelocity * radius * math.cos(latitude)
+    angularSpeed * radius * math.cos(latitude)
 }

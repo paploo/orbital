@@ -63,8 +63,9 @@ trait Rocket[+T <: Rocket[T]] extends Steppable[T] with OrbitalParameters {
     -((planetoid.mu * mass) / (pos.sq)) * pos.unit
 
   lazy val dragForce: PhysVec = {
-    val magnitude = 0.5 * planetoid.density(pos) * vel.sq * mass * Rocket.standardDragCoefficient * Rocket.crossSectionalArea
-    -magnitude * vel.unit
+    val relVel = vel - planetoid.linearVelocity(pos)
+    val magnitude = 0.5 * planetoid.density(pos) * relVel.sq * mass * Rocket.standardDragCoefficient * Rocket.crossSectionalArea
+    -magnitude * relVel.unit
   }
 
   lazy val thrustForce: PhysVec = SphericalVec(thrust, attitude.phi, attitude.th)

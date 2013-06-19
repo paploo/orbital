@@ -26,10 +26,11 @@ object SampleLibrary {
 
   def stagedVerticalClimb: StagedRocket = {
     val stages = SampleLibrary.Gemini1Stages(false)
+    val r = PhysVec(Planetoid.kerbin.radius + 77.594, 0.0)
     val initialState = State(
       0.0,
-      PhysVec(Planetoid.kerbin.radius + 77.594, 0.0),
-      PhysVec.zero,
+      r,
+      Planetoid.kerbin.linearVelocity(r),
       Planetoid.kerbin
     )
 

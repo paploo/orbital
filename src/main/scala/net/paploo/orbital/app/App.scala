@@ -50,7 +50,6 @@ object App {
     rawName.split('.').head
   }
 
-  //lazy val rocketRunFunctions = 
   def rocketRunFunctions = Map[String, () => Any](
     "Basic Orbit" -> SampleLibrary.basicOrbit _,
     "Staged Vertical Climb" -> SampleLibrary.stagedVerticalClimb _
