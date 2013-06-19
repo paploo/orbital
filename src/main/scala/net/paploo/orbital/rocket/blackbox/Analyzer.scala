@@ -57,7 +57,7 @@ class RocketAnalyzer[+T <: Rocket[T]](val step: T, val nextStep: T) extends Anal
   protected def controlEvents: EventLog[T] = {
     val log = new EventLogBuilder[T]
 
-    if (!step.planetoid.isCollision(nextStep.pos) && nextStep.planetoid.isCollision(nextStep.pos))
+    if (!step.planetoid.isCollision(step.pos) && nextStep.planetoid.isCollision(nextStep.pos))
       log += event.control.ImpactEvent(nextStep, nextStep.planetoid)
 
     if (!step.isInStableOrbit && nextStep.isInStableOrbit)

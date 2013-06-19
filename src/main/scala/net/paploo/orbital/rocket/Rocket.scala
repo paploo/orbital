@@ -48,8 +48,10 @@ trait Rocket[+T <: Rocket[T]] extends Steppable[T] with OrbitalParameters {
 
   def isFuelStarved: Boolean
 
-  def isInStableOrbit: Boolean =
-    isFuelStarved && planetoid.isAboveAtmosphere(pos)
+  lazy val isOnCrashCourse: Boolean = periapsis <= planetoid.radius
+
+  lazy val isInStableOrbit: Boolean =
+    isFuelStarved && planetoid.isAboveAtmosphere(pos) && !isOnCrashCourse
 
   def deltaV: Double
 
@@ -152,7 +154,6 @@ class StagedRocket(override val state: State,
     case (step: StagedRocket, nextStep: StagedRocket) => {
       if (step.blackBox.isNewlyTerminated) None
       else {
-        println(List(this.t, this.pos.r - 600000, this.vel.r, this.mass, this.force.r, this.thrustForce.r, this.gravForce.r, this.dragForce.r).mkString(", "))
         val eventLog = new StagedRocketAnalyzer(step, nextStep).analyze
         if (eventLog.isEmpty) Option(nextStep)
         else Option(nextStep ++ eventLog)
@@ -174,7 +175,6 @@ class StagedRocket(override val state: State,
     if (stages.isEmpty) Nil
     else {
       val nextStages = if (currentStage.isEmpty && stages.length > 1) stages.tail else stages
-      //if (currentStage.isEmpty && stages.length > 1) println(s"STAGE: ${this.mass}, ${this.deltaV}, ${this.force}, $this")
       nextStages.head.step(deltaT, atm, throttle) :: nextStages.tail
     }
 }

@@ -3,7 +3,7 @@ package net.paploo.orbital.planetarysystem
 import net.paploo.orbital.phys.PhysVec
 
 object Planetoid {
-  val kerbin = Planetoid("Kerbin", 3531600000000.0, 600000.0, 21600.0, 5000.0)
+  val kerbin = Planetoid("Kerbin", 3531600000000.0, 600000.0, 21600.0, 1.0, 5000.0)
 
   val kerbinSurfaceDensity = 1.2230948554874
   val dragMultiplier = 0.008
@@ -22,7 +22,7 @@ object Planetoid {
  * TODO: Determine if convenience methods to the planetary system tree should
  * be in planetoid.
  */
-case class Planetoid(name: String, mu: Double, radius: Double, rotPeriod: Double, atmAttenAlt: Double) {
+case class Planetoid(name: String, mu: Double, radius: Double, rotPeriod: Double, seaLevelPressure: Double, atmAttenAlt: Double) {
   lazy val angularVelocity = 2.0 * math.Pi / rotPeriod
 
   /**
@@ -73,9 +73,9 @@ case class Planetoid(name: String, mu: Double, radius: Double, rotPeriod: Double
 
   /** Atmospheric pressure at a given radius. */
   def atm(r: Double): Double = {
-    if (isCollision(r)) 1.0
+    if (isCollision(r)) seaLevelPressure
     else if (isAboveAtmosphere(r)) 0.0
-    else math.exp(alt(r) / atmAttenAlt)
+    else seaLevelPressure * math.exp(-alt(r) / atmAttenAlt)
   }
 
   /** Atmospheric density at a position vector relative to the planetoid. */

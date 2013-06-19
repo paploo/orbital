@@ -46,6 +46,10 @@ trait OrbitalParameters {
     (periapsis * eccentricityUnitVector, apoapsis * eccentricityUnitVector)
   }
 
+  lazy val periapsis = apses._1
+
+  lazy val apoapsis = apses._2
+
   lazy val period: Double =
     if (specificEnergy < 0.0)
       (math.Pi * planetoid.mu) / math.sqrt(-2.0 * specificEnergy * specificEnergy * specificEnergy)

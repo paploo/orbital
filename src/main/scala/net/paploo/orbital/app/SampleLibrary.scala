@@ -36,7 +36,7 @@ object SampleLibrary {
     val initialRocket = new StagedRocket(initialState, PhysVec(1.0, 0.0), 1.0, stages, BlackBox.empty)
     val rocket = initialRocket ++ BlackBox.EventLog(event.control.StartOfSimulationEvent(initialRocket))
 
-    rocket.runWhile(_.t < 600.0)(1.0)
+    rocket.runWhile(_.t < 600.0)(0.001)
   }
 
   /**
